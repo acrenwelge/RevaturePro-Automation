@@ -1,10 +1,13 @@
 package com.andrew.revpro;
 
+import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 
+import com.andrew.revpro.excel.CurriculumReader;
+import com.andrew.revpro.model.Curriculum;
 import com.andrew.revpro.pom.LoginPage;
 
 /**
@@ -18,24 +21,18 @@ public class App {
 	private static final String CHROME_PROP = "webdriver.chrome.driver";
 	private static final String CHROME_DRIVER_EXEC = "CHROMEDRIVER"; // the environment variable with the path to the executable
 	
-	private static boolean EXTRACT_ONLY = false;
-	
 	private static String USERNAME;
 	private static String PASSWORD;
+	private static File CurriculumExcelFile;
 	
     public static void main(String[] args) {
-    	if (args[0].equals("--extract-only")) {
-    		EXTRACT_ONLY = true;
-    	} else {
-    		USERNAME = args[0];
-    		PASSWORD = args[1];
-    	}
+    	USERNAME = args[0];
+    	PASSWORD = args[1];
+    	CurriculumExcelFile = new File(args[2]);
+    	extractExcel();
+    	System.exit(0); // for now... just want to check the excel extraction
     	App a = new App();
-    	if (EXTRACT_ONLY) {
-    		a.extractExcel();
-    	} else {
-    		a.automate();
-    	}
+    	a.automate();
     }
      
     public App() {
@@ -54,15 +51,11 @@ public class App {
     	lp.loginToSystem(USERNAME, PASSWORD);
     }
     
-    private void extractExcel() {
-    	String cellValue = "";
-    	String finalValue = removeBulletPoints(cellValue);
+    private static void extractExcel() {
+    	CurriculumReader cr = new CurriculumReader();
+    	Curriculum c = cr.getCurriculum(CurriculumExcelFile);
+    	System.out.println(c);
     }
     
-    private String removeBulletPoints(String source) {
-    	// creating bullet point via Unicode value
-        int bullet = 0x2022;
-        String bulletString = Character.toString((char) bullet);
-        return source.replaceAll(bulletString, ""); // remove all bullet points
-    }
+    
 }
