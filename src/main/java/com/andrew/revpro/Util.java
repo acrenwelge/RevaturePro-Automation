@@ -12,9 +12,12 @@ public class Util {
 	
 	public static String removeBulletPoints(String source) {
     	// creating bullet point via Unicode value
-        int bullet = 0x2022;
-        String bulletString = Character.toString((char) bullet);
-        return source.replaceAll(bulletString, ""); // remove all bullet points
+        int bullet1 = 0x2022;
+		int bullet2 = 9679;
+        String bulletString1 = Character.toString((char) bullet1);
+        String bulletString2 = Character.toString((char) bullet2);
+        String stripped = source.replaceAll(bulletString1, "").trim(); // remove all bullet points and cut off whitespace
+        return stripped.replaceAll(bulletString2, "").trim(); // again for the other kind of bullet
     }
 	
 	public static List<Activity> extractActivitiesFromBulletPoints(String bullets) {

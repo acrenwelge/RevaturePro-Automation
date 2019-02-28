@@ -1,5 +1,6 @@
 package com.andrew.revpro.pom;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.openqa.selenium.By;
@@ -44,7 +45,7 @@ public class NewCurriculumPage {
 		return driver.findElement(By.linkText(text));
 	}
 	
-	public void enterTags(List<String> tags) {
+	public void enterTags(Collection<String> tags) {
 		WebElement tagInput = driver.findElement(By.xpath("//*[@id=\"tag\"]/div/input"));
 		for (String tag : tags) {
 			tagInput.sendKeys(tag);

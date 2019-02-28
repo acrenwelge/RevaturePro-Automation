@@ -1,8 +1,5 @@
 package com.andrew.revpro.pom;
 
-import java.util.Arrays;
-import java.util.StringJoiner;
-
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -31,24 +28,4 @@ public class LoginPage {
 		getPasswordField().sendKeys(password);
 		getLoginButton().click();
 	}
-	
-	private static void printBullets() {
-    	// creating bullet point via Unicode value
-        int bullet = 0x2022;
-        String[] points = {"bullet point 1", "bullet point 2", "bullet point 3"};
-        String bulletString = Character.toString((char) bullet);
-        Arrays.asList(points).forEach(s -> {
-        	System.out.println(bulletString + s);
-        });
-        System.out.println("======================");
-        StringJoiner sj = new StringJoiner(bulletString + "\n");
-        StringBuilder sb = new StringBuilder();
-        for (String s : points) {
-        	sj.add(s);
-        	sb.append(bulletString + s + "\n");
-        }
-        System.out.println(sj);
-        System.out.println("======================");
-        System.out.println(sb);
-    }
 }
