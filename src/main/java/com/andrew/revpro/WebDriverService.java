@@ -1,7 +1,5 @@
 package com.andrew.revpro;
 
-import java.util.concurrent.TimeUnit;
-
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 
@@ -17,7 +15,6 @@ public class WebDriverService {
 			System.out.println("initializing system property: " + CHROME_PROP);
 			System.setProperty(CHROME_PROP, System.getenv(CHROME_DRIVER_EXEC));
 			driver = new ChromeDriver();
-			driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
 			return driver;
 		} else {
 			return driver;

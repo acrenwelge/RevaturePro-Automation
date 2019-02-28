@@ -1,14 +1,16 @@
 package com.andrew.revpro.model;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 public class Curriculum {
 	private String name;
-	private Set<String> tags;
+	private Set<String> tags = new HashSet<>();
 	private CurriculumType currType;
 	private ProgramType progType;
-	private List<CurriculumWeek> weeks;
+	private List<CurriculumWeek> weeks = new ArrayList<>();
 	
 	public String getName() {
 		return name;

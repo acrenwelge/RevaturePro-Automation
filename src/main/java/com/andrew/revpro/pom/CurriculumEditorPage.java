@@ -11,11 +11,14 @@ import com.andrew.revpro.model.CurriculumDay;
 import com.andrew.revpro.model.CurriculumWeek;
 
 public class CurriculumEditorPage {
+	
 	private static String tableXpath = "//*[@id=\"app-main\"]/app-view-curriculum/div[2]/div/div[2]/div/div";
 	private WebDriver driver;
+	private CurriculumEditorModal cem;
 	
-	public CurriculumEditorPage(WebDriver wd) {
+	public CurriculumEditorPage(WebDriver wd, CurriculumEditorModal cem) {
 		this.driver = wd;
+		this.cem = cem;
 	}
 	
 	public WebElement getNewWeekBtn() {
@@ -25,7 +28,7 @@ public class CurriculumEditorPage {
 	public void clickEditNthWeek(int weekNum) {
 		//driver.findElement(By.xpath(tableXpath + "/div[2]/div/div[1]/span/a"));
 		WebElement week = getNthWeek(weekNum);
-		week.findElement(By.xpath("//a[@title='Edit'")).click();
+		week.findElement(By.xpath("//a[@title='Edit']")).click();
 	}
 	
 	public void enterWeekActivities(int weekNum, CurriculumWeek cWeek) {
@@ -40,9 +43,10 @@ public class CurriculumEditorPage {
 	}
 	
 	public void enterDayActivities(CurriculumDay cDay, WebElement uiDay) {
+		uiDay.click();
 		for (Activity act : cDay.getActivities()) {
-			uiDay.click();
-			// consult CurriculumEditorModal object
+			cem.enterActivityTitle(act.getName());
+			cem.saveActivity();
 		}
 	}
 	

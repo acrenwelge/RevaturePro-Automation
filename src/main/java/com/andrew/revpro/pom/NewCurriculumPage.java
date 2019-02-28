@@ -1,21 +1,24 @@
 package com.andrew.revpro.pom;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import com.andrew.revpro.model.CurriculumType;
 import com.andrew.revpro.model.ProgramType;
 
 public class NewCurriculumPage {
 	private WebDriver driver;
+	private WebDriverWait wait;
 	
 	public NewCurriculumPage(WebDriver wd) {
 		this.driver = wd;
+		this.wait = new WebDriverWait(driver, 10);
 	}
 	
 	public WebElement getCurriculumNameField() {
@@ -31,18 +34,27 @@ public class NewCurriculumPage {
 	
 	public void selectCurriculumType(CurriculumType ct) {
 		// click the dropdown
-		driver.findElement(By.xpath("//*[@id=\"app-main\"]/app-create-curriculum/div/div/div[6]/div/div/div/div/button")).click();
+		String base = "//*[@id=\"app-main\"]/app-create-curriculum/div/div/div[6]/div/div/div/div/";
+		driver.findElement(By.xpath(base + "button")).click();
+//		String span = "";
+//		switch (ct) {
+//		case STANDARD:    span = "div/a[1]/span"; break;
+//		case SPECIALIZED: span = "div/a[2]/span"; break;
+//		case CUSTOM:      span = "div/a[3]/span"; break;
+//		}
+//		wait.until(ExpectedConditions.elementToBeClickable(By.xpath(base+span))).click();
+		
 		String text = "";
 		switch (ct) {
-		case STANDARD:    text = "Standard";    break;
+		case STANDARD:    text = "Standard"; break;
 		case SPECIALIZED: text = "Specialized"; break;
-		case CUSTOM:      text = "Custom";      break;
+		case CUSTOM:      text = "Custom"; break;
 		}
 		findAnchorTagByText(text).click();
 	}
 	
 	private WebElement findAnchorTagByText(String text) {
-		return driver.findElement(By.linkText(text));
+		return wait.until(ExpectedConditions.elementToBeClickable(By.partialLinkText(text)));
 	}
 	
 	public void enterTags(Collection<String> tags) {
@@ -66,7 +78,6 @@ public class NewCurriculumPage {
 	}
 	
 	public void clickNext() {
-		//driver.findElement(By.xpath("//*[@id=\"app-main\"]/app-create-curriculum/div/div/div[9]/div/div/button[2]")).click();
-		findAnchorTagByText("Next").click();
+		driver.findElement(By.xpath("//*[@id=\"app-main\"]/app-create-curriculum/div/div/div[9]/div/div/button[2]")).click();
 	}
 }

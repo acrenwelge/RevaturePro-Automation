@@ -36,7 +36,6 @@ public class App {
     		e.printStackTrace();
     	}
     	Curriculum curr = extractCurriculum(curriculumExcelFile);
-    	System.exit(0); // for now... just want to check the excel extraction
     	App a = new App();
     	a.automate(curr);
     }
@@ -51,9 +50,18 @@ public class App {
 		String url = config.getProperty("dev.url");
 		String username = config.getProperty("dev.username");
 		String password = config.getProperty("dev.password");
-		CurriculumEditorPage cep = new CurriculumEditorPage(d);
-		CurriculumEditorModal cem = new CurriculumEditorModal(d);
+		if (prod) {
+			url = config.getProperty("prod.url");
+			username = config.getProperty("prod.username");
+			password = config.getProperty("prod.password");
+		} else {
+			url = config.getProperty("dev.url");
+			username = config.getProperty("dev.username");
+			password = config.getProperty("dev.password");
+		}
 		NewCurriculumPage ncp = new NewCurriculumPage(d);
+		CurriculumEditorModal cem = new CurriculumEditorModal(d);
+		CurriculumEditorPage cep = new CurriculumEditorPage(d, cem);
 		this.service = new RevProDevService(cep, cem, ncp, lp, url, username, password);
 	}
     
