@@ -18,6 +18,7 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.andrew.revpro.exceptions.ExcelException;
+import com.andrew.revpro.model.quiz.Quiz;
 
 public class ExcelExperimentation {
 	
@@ -92,9 +93,9 @@ public class ExcelExperimentation {
 	
 	public static void main(String[] args) {
 		try {
-			//new ExcelExperimentation().readExcelFile();
-			//new ExcelExperimentation().writeToNewExcelFile();
-			new ExcelExperimentation().readAndWriteNewExcelFile();
+			Quiz q = new Quiz();
+			q.quizName = "EXAM: HELLO?WORLD";
+			ExcelQuizTemplateWriter.writeQuizToNewExcelFile(q);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

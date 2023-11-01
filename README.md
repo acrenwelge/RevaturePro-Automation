@@ -8,9 +8,16 @@ cd RevaturePro-Automation/
 mvn package
 ```
 
-**IMPORTANT: This script uses a "CHROMEDRIVER" environment variable - you must set the path to the chromedriver executable in the system variable**
+### Environment Variables
+You must set the following environment variables:
+- CHROMEDRIVER: path to the executable for Chrome
+- REVPRO_USERNAME: login username for RevaturePro
+- REVPRO_PW: password for RevaturePro login
+
+You also need a "revpro-exam-urls.txt" file within an "imocha-uploads" directory in the "Documents" folder. 
 
 ## Running the script
 ```bash
-java -jar jarfile.jar username password
+java -jar app.jar search # searches for exam URLs
+java -jar app.jar scrape # reads exam URLs from file and extracts to Excel format
 ```

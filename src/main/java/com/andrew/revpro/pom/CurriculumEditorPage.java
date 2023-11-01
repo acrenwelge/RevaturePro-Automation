@@ -6,9 +6,9 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
-import com.andrew.revpro.model.Activity;
-import com.andrew.revpro.model.CurriculumDay;
-import com.andrew.revpro.model.CurriculumWeek;
+import com.andrew.revpro.model.curriculum.Activity;
+import com.andrew.revpro.model.curriculum.CurriculumDay;
+import com.andrew.revpro.model.curriculum.CurriculumWeek;
 
 public class CurriculumEditorPage {
 	private static String tableXpath = "//*[@id=\"app-main\"]/app-view-curriculum/div[2]/div/div[2]/div/div";

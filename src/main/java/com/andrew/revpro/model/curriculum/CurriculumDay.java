@@ -1,4 +1,4 @@
-package com.andrew.revpro.model;
+package com.andrew.revpro.model.curriculum;
 
 import java.time.DayOfWeek;
 import java.util.List;

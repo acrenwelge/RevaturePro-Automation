@@ -7,8 +7,8 @@ import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
-import com.andrew.revpro.model.CurriculumType;
-import com.andrew.revpro.model.ProgramType;
+import com.andrew.revpro.model.curriculum.CurriculumType;
+import com.andrew.revpro.model.curriculum.ProgramType;
 
 public class NewCurriculumPage {
 	private WebDriver driver;
