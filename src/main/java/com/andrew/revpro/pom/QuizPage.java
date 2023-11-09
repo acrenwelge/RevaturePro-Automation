@@ -32,24 +32,33 @@ public class QuizPage {
 		Quiz quiz = new Quiz();
 		WebDriverWait titleWait = new WebDriverWait(driver,10);
 		WebElement title = titleWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("quizVwName")));
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		quiz.quizName = title.getText();
 		for (WebElement link : questionLinks) {
 			link.click();
 			WebDriverWait wait = new WebDriverWait(driver, 10);
 			modal = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("quesDetails")));
-			Question ques = new Question();
-			fillQuestionType(ques);
-			if (ques.type.equals(QuestionType.MATCHING)) {
-				System.out.println("Skipping matching question");
-				driver.findElement(By.cssSelector("#questionHead button")).click();
-				continue;
-			}
-			fillQuestionText(ques);
-			fillQuestionAnswerChoices(ques);
-			quiz.addQuestion(ques);
+			extractQuestionDataToQuiz(quiz);
 			driver.findElement(By.cssSelector("#questionHead button")).click();
 		}
 		return quiz;
+	}
+	
+	private void extractQuestionDataToQuiz(Quiz quiz) {
+		Question ques = new Question();
+		fillQuestionType(ques);
+		if (ques.type.equals(QuestionType.MATCHING)) {
+			System.out.println("Skipping matching question");
+			driver.findElement(By.cssSelector("#questionHead button")).click();
+			return;
+		}
+		fillQuestionText(ques);
+		fillQuestionAnswerChoices(ques);
+		quiz.addQuestion(ques);
 	}
 	
 	public void fillQuestionType(Question ques) {
@@ -64,7 +73,15 @@ public class QuizPage {
 		ques.questionText = dataDivs.findElements(By.cssSelector("div > div")).get(3).getText();
 		if (dataDivs.findElements(By.tagName("div")).get(4).getText().equals("Question Content")) {
 			ques.questionText += System.lineSeparator();
-			ques.questionText += dataDivs.findElements(By.tagName("div")).get(5).getText();
+			try {
+				Thread.sleep(3000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			WebDriverWait wait = new WebDriverWait(driver,10);
+			WebElement content = dataDivs.findElements(By.tagName("div")).get(5);
+			wait.until(ExpectedConditions.visibilityOf(content));
+			ques.questionText += content.getText();
 		}
 	}
 	
@@ -93,13 +110,13 @@ public class QuizPage {
 			ques.ansC = row3.get(0).getText();
 			ques.ansD = row4.get(0).getText();
 			boolean CisRight = row3.get(lastCellIdxInRow).getText().strip().equals("Yes");
-			boolean DisRight = row3.get(lastCellIdxInRow).getText().strip().equals("Yes");
+			boolean DisRight = row4.get(lastCellIdxInRow).getText().strip().equals("Yes");
 			if (CisRight) {ques.correctAns = ques.correctAns.isBlank() ? "C" : ques.correctAns.concat(",C");}
 			if (DisRight) {ques.correctAns = ques.correctAns.isBlank() ? "D" : ques.correctAns.concat(",D");}
 			if (rows.size() > 4) {
 				List<WebElement> row5 = rows.get(4).findElements(By.tagName("td"));
 				ques.ansE = row5.get(0).getText();
-				boolean EisRight = row3.get(lastCellIdxInRow).getText().strip().equals("Yes");
+				boolean EisRight = row5.get(lastCellIdxInRow).getText().strip().equals("Yes");
 				if (EisRight) {
 					ques.correctAns = ques.correctAns.isBlank() ? "E" : ques.correctAns.concat(",E");
 				}

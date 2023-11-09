@@ -3,6 +3,7 @@ package com.andrew.revpro.excel;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -20,10 +21,11 @@ import com.andrew.revpro.model.quiz.Quiz;
 
 public class ExcelQuizTemplateWriter {
 	
-	private static final Path EXCEL_OUTPUT_LOCATION = Paths.get(System.getProperty("user.home"), "Documents", "imocha-uploads");
+	private static final Path EXCEL_OUTPUT_LOCATION = Paths.get(System.getProperty("user.home"), "Documents", "imocha-uploads","extracted-revpro-exams");
 	private static File document;
 	
 	public static void writeQuizToNewExcelFile(Quiz quiz) throws IOException {
+		Files.createDirectories(EXCEL_OUTPUT_LOCATION);
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
 		String timestamp = dateFormat.format(new Date());
 		try {
@@ -58,7 +60,14 @@ public class ExcelQuizTemplateWriter {
 			for (Question q : quiz.questions) {
 				int cellInit = 0;
 				Row r = sh.createRow(rowInit++);
-				r.createCell(cellInit++, CellType.STRING).setCellValue("MCQ"); // TODO: set based on question type
+				String quesTypeVal = null;
+				switch (q.type) {
+				case BEST_CHOICE: quesTypeVal = "MCQ";
+				case MULTI_CHOICE: quesTypeVal = "MAQ";
+				case TRUE_FALSE: quesTypeVal = "True/False";
+				default: quesTypeVal = "MCQ";
+				}
+				r.createCell(cellInit++, CellType.STRING).setCellValue(quesTypeVal);
 				r.createCell(cellInit++, CellType.STRING).setCellValue("Easy");
 				r.createCell(cellInit++, CellType.STRING).setCellValue(q.questionText);
 				r.createCell(cellInit++, CellType.STRING).setCellValue(q.ansA);
