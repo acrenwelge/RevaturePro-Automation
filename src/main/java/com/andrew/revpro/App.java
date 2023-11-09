@@ -4,75 +4,83 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import com.andrew.revpro.Config.APPLICATION_MODES;
 import com.andrew.revpro.excel.ExcelQuizTemplateWriter;
 import com.andrew.revpro.model.quiz.Quiz;
 import com.andrew.revpro.pom.LoginPage;
 import com.andrew.revpro.pom.QuizPage;
 
 /**
- * This script automates the extraction of quiz questions to excel files
+ * This script automates the following tasks on RevaturePro
+ * - searching the quiz library by keywords and saving all returned URLs
+ * - extraction of quiz questions to excel files given a file of URLs
  */
 public class App {
 	private WebDriver driver;
 	private LoginPage lp;
 	private QuizPage qp;
 	
-	private static final String REVPRO_URL = "https://app.revature.com/core/login";
-	private static final String CHROME_PROP = "webdriver.chrome.driver";
-	private static final String CHROME_DRIVER_EXEC = "CHROMEDRIVER"; // the environment variable with the path to the executable
+	private static Config APP_CONFIG;
 	
-	private static String USERNAME;
-	private static String PASSWORD;
-	private static List<String> QUIZ_URLS;
-	
-    public static void main(String[] args) {
-    	USERNAME = System.getenv("REVPRO_USERNAME");
-    	PASSWORD = System.getenv("REVPRO_PW");
-    	if (USERNAME == null || PASSWORD == null) {
-    		System.err.println("Must provide REVPRO_USERNAME and REVPRO_PW environment variables");
-    	}
-    	if (args.length != 1) {
-    		System.err.println("Must specify either 'search' or 'scrape' command: 'java -jar app.jar scrape'");
-    	}
-        try {
-            Path file = Paths.get(System.getProperty("user.home"),"Documents","imocha-uploads","revpro-exam-urls.txt");
-            QUIZ_URLS = Files.readAllLines(file);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    	App app = new App();
+    public static void main(String[] args) throws IOException {
+    	Config conf = loadConfiguration(args);
+    	App app = new App(conf);
     	app.loginToSystem();
-    	if (args[0].equals("search")) {
+    	if (Config.MODE.equals(APPLICATION_MODES.SEARCH)) {
     		app.searchAllExams();
-    	} else if (args[0].equals("scrape")) {
-    		app.extractQuizzesToExcel();    		
+    	} else if (Config.MODE.equals(APPLICATION_MODES.SCRAPE)) {
+    		app.extractQuizzesToExcel();
     	}
     }
+    
+    protected static Config loadConfiguration(String[] args) throws IOException {
+    	String username = System.getenv("REVPRO_USERNAME");
+    	String password = System.getenv("REVPRO_PW");
+    	if (username == null || password == null) {
+    		System.err.println("Must provide REVPRO_USERNAME and REVPRO_PW environment variables");
+    		System.exit(1); // Exit the application if the configuration is missing
+    	}
+    	if (args.length < 1) {
+    		System.err.println("Must specify either 'search' or 'scrape' command: 'java -jar app.jar scrape'");
+    		System.exit(1); // Exit the application if no args provided
+    	}
+    	Config conf = new Config(username, password);
+    	if (args[0].equals("search")) {
+    		Config.MODE = APPLICATION_MODES.SEARCH;
+    		// all other args are search terms
+    		Config.SEARCH_TERM = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
+    	} else if (args[0].equals("scrape")) {
+    		Config.MODE = APPLICATION_MODES.SCRAPE;
+    		conf.setQuizUrls(readQuizUrls());
+    	}
+    	return new Config(username, password);
+    }
      
-    public App() {
-    	// initialize driver
-		System.out.println("initializing system property: " + CHROME_PROP);
-		System.setProperty(CHROME_PROP, System.getenv(CHROME_DRIVER_EXEC));
-		this.driver = new ChromeDriver();
-		this.driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
+    public App(Config conf) {
+    	APP_CONFIG = conf;
+		this.driver = WebDriverFactory.createChromeDriver();
 	}
     
-    private void loginToSystem() {
-    	driver.get(REVPRO_URL);
+    protected static List<String> readQuizUrls() throws IOException {
+        Path file = Paths.get(System.getProperty("user.home"),"Documents","imocha-uploads","revpro-exam-urls.txt");
+        return Files.readAllLines(file);
+    }
+    
+    protected void loginToSystem() {
+    	driver.get(Config.REVPRO_URL);
     	driver.manage().window().maximize();
     	this.lp = new LoginPage(driver);
-    	lp.loginToSystem(USERNAME, PASSWORD);
+    	lp.loginToSystem(APP_CONFIG.getUsername(), APP_CONFIG.getPassword());
     	try {
 			Thread.sleep(3000);
 		} catch (InterruptedException e1) {
@@ -80,11 +88,11 @@ public class App {
 		}
     }
     
-    private void searchAllExams() {
-    	driver.get("https://app.revature.com/admin-v2/quiz/dashboard");
+    protected void searchAllExams() {
+    	driver.get(Config.QUIZ_LIB_URL);
     	WebDriverWait wait = new WebDriverWait(driver, 10);
     	WebElement input = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("searchtext")));
-    	input.sendKeys("Exam:");
+    	input.sendKeys(Config.SEARCH_TERM);
     	input.sendKeys(Keys.RETURN);
     	try {
 			Thread.sleep(3000);
@@ -113,8 +121,8 @@ public class App {
     	driver.quit();
     }
     
-    private void extractQuizzesToExcel() {
-    	for (String url : QUIZ_URLS) {
+    protected void extractQuizzesToExcel() throws IOException {
+    	for (String url : APP_CONFIG.getQuizUrls()) {
     		driver.navigate().to(url);
     		this.qp = new QuizPage(driver);
     		Quiz quiz = qp.extractQuizData();
