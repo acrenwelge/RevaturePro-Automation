@@ -1,4 +1,4 @@
-package com.andrew.revpro.pom;
+package com.andrew.revpro.pages;
 
 import java.util.List;
 
@@ -7,7 +7,7 @@ import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
-import com.andrew.revpro.model.curriculum.ActivityType;
+import com.andrew.revpro.curriculum.data.ActivityType;
 
 public class CurriculumEditorModal {
 	private WebDriver driver;

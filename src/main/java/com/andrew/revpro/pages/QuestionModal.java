@@ -1,4 +1,4 @@
-package com.andrew.revpro.pom;
+package com.andrew.revpro.pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;

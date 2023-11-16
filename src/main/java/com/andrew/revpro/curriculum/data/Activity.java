@@ -1,25 +1,31 @@
-package com.andrew.revpro.model.curriculum;
+package com.andrew.revpro.curriculum.data;
 
 public class Activity {
 	private String name;
 	private ActivityType type;
+
 	public String getName() {
 		return name;
 	}
+
 	public void setName(String name) {
 		this.name = name;
 	}
+
 	public ActivityType getType() {
 		return type;
 	}
+
 	public void setType(ActivityType type) {
 		this.type = type;
 	}
+
 	public Activity(String name, ActivityType type) {
 		super();
 		this.name = name;
 		this.type = type;
 	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -28,6 +34,7 @@ public class Activity {
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		return result;
 	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -46,6 +53,7 @@ public class Activity {
 			return false;
 		return true;
 	}
+
 	@Override
 	public String toString() {
 		return "Activity [name=" + name + ", type=" + type + "]";

@@ -1,4 +1,4 @@
-package com.andrew.revpro.model.quiz;
+package com.andrew.revpro.quiz.data;
 
 public class Question {
 	public String questionText;

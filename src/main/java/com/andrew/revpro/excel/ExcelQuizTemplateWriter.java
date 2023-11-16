@@ -4,23 +4,25 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import com.andrew.revpro.model.quiz.Question;
-import com.andrew.revpro.model.quiz.Quiz;
+import com.andrew.revpro.quiz.data.Question;
+import com.andrew.revpro.quiz.data.Quiz;
 
 public class ExcelQuizTemplateWriter {
 	
+	private static final Logger log = LogManager.getLogger();
 	private static final Path EXCEL_OUTPUT_LOCATION = Paths.get(System.getProperty("user.home"), "Documents", "imocha-uploads","extracted-revpro-exams");
 	private static File document;
 	
@@ -28,14 +30,10 @@ public class ExcelQuizTemplateWriter {
 		Files.createDirectories(EXCEL_OUTPUT_LOCATION);
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
 		String timestamp = dateFormat.format(new Date());
-		try {
-			if (quiz.quizName.isBlank()) {
-				quiz.quizName = "Exam-"+timestamp;
-			}
-			document = EXCEL_OUTPUT_LOCATION.resolve(sanitizeFileName(quiz.quizName) + ".xlsx").toFile();
-		} catch (InvalidPathException e) {
-			document = EXCEL_OUTPUT_LOCATION.resolve("Exam-"+timestamp+".xlsx").toFile();
+		if (quiz.quizName.isBlank()) {
+			quiz.quizName = "Exam-"+timestamp;
 		}
+		document = EXCEL_OUTPUT_LOCATION.resolve(FileUtil.sanitizeFileName(quiz.quizName) + ".xlsx").toFile();
 		try (// declare both resources here
 				FileOutputStream fos = new FileOutputStream(document);
 				Workbook wb = new XSSFWorkbook();
@@ -83,15 +81,7 @@ public class ExcelQuizTemplateWriter {
 			}
 			wb.write(fos);
 		}
-		System.out.printf("Excel quiz file saved: %s", document);
+		log.info("Excel quiz file saved: %s%n", document);
 	}
 	
-	private static String sanitizeFileName(String fileName) {
-	    // Define a regex pattern for disallowed characters
-	    String regex = "[<>:\"/\\|?*]";
-	    // Replace disallowed characters with dashes
-	    String sanitizedFileName = fileName.replaceAll(regex, "-");
-	    return sanitizedFileName;
-	}
-
 }

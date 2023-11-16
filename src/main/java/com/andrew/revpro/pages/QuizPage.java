@@ -1,7 +1,9 @@
-package com.andrew.revpro.pom;
+package com.andrew.revpro.pages;
 
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -10,11 +12,13 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import com.andrew.revpro.model.quiz.Question;
-import com.andrew.revpro.model.quiz.Question.QuestionType;
-import com.andrew.revpro.model.quiz.Quiz;
+import com.andrew.revpro.quiz.data.Question;
+import com.andrew.revpro.quiz.data.Question.QuestionType;
+import com.andrew.revpro.quiz.data.Quiz;
+import com.andrew.revpro.quiz.data.Quiz.QuizParseStats;
 
 public class QuizPage {
+	private static final Logger log = LogManager.getLogger();
 	private WebDriver driver;
 	
 	@FindBy(id = "quesDetails")
@@ -35,7 +39,7 @@ public class QuizPage {
 		try {
 			Thread.sleep(500);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			log.fatal(e);
 		}
 		quiz.quizName = title.getText();
 		for (WebElement link : questionLinks) {
@@ -43,8 +47,11 @@ public class QuizPage {
 			WebDriverWait wait = new WebDriverWait(driver, 10);
 			modal = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("quesDetails")));
 			extractQuestionDataToQuiz(quiz);
+			quiz.stats.totalQuestions += 1;
+			log.trace("Completed question");
 			driver.findElement(By.cssSelector("#questionHead button")).click();
 		}
+		log.info("Skipped "+quiz.stats.skipped + " out of " + quiz.stats.totalQuestions + "questions");
 		return quiz;
 	}
 	
@@ -52,12 +59,13 @@ public class QuizPage {
 		Question ques = new Question();
 		fillQuestionType(ques);
 		if (ques.type.equals(QuestionType.MATCHING)) {
-			System.out.println("Skipping matching question");
+			log.warn("Skipping matching question");
 			driver.findElement(By.cssSelector("#questionHead button")).click();
+			quiz.stats.skipped += 1;
 			return;
 		}
 		fillQuestionText(ques);
-		fillQuestionAnswerChoices(ques);
+		fillQuestionAnswerChoices(ques, quiz.stats);
 		quiz.addQuestion(ques);
 	}
 	
@@ -76,7 +84,7 @@ public class QuizPage {
 			try {
 				Thread.sleep(3000);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				log.fatal(e);
 			}
 			WebDriverWait wait = new WebDriverWait(driver,10);
 			WebElement content = dataDivs.findElements(By.tagName("div")).get(5);
@@ -85,14 +93,15 @@ public class QuizPage {
 		}
 	}
 	
-	public void fillQuestionAnswerChoices(Question ques) {
+	public void fillQuestionAnswerChoices(Question ques, QuizParseStats stats) {
 		List<WebElement> rows = modal.findElements(By.cssSelector("#quesDetails > div"))
 				.get(4).findElement(By.tagName("tbody"))
 				.findElements(By.tagName("tr"));
 		if ((ques.type.equals(QuestionType.BEST_CHOICE) || ques.type.equals(QuestionType.MULTI_CHOICE)) 
 				&& rows.size() < 4 || rows.size() > 5) {
-			System.err.println("WARNING: Skipping because fewer than 4 or more than 5 answer choices on question: "
-				+ System.lineSeparator() + ques.questionText);
+			log.warn("WARNING: Skipping this question because it has fewer than 4 or more than 5 answer choices on question: "
+					+ System.lineSeparator() + ques.questionText);
+			stats.skipped += 1;
 			return;
 		}
 		List<WebElement> row1 = rows.get(0).findElements(By.tagName("td"));

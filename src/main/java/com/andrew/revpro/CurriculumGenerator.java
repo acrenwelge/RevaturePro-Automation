@@ -1,6 +1,6 @@
 package com.andrew.revpro;
 
-import com.andrew.revpro.model.curriculum.Curriculum;
+import com.andrew.revpro.curriculum.data.Curriculum;
 
 public class CurriculumGenerator {
 	
